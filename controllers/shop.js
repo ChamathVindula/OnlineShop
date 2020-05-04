@@ -4,7 +4,6 @@ const Cart = require('../models/cart.js');
 
 exports.getProducts = (request, response, next) => {
     Product.getProducts((products) => {
-        // render method without a callback
         response.render('shop/product-list.ejs', {
             prods: products, 
             docTitle: 'Shop', 
@@ -39,7 +38,6 @@ exports.getProductDetails = (request, response, next) => {
 
 exports.getIndex = (request, response, next) => {
     Product.getProducts((products) => {
-        // render method without a callback
         response.render('shop/index.ejs', {
             prods: products,
             docTitle: 'Shop',
@@ -62,21 +60,40 @@ exports.addToCart = (request, response, next) => {
 }
 
 exports.getCart = (request, response, next) => {
-    // render method using the callback
-    response.render('shop/cart.ejs', {
-        path: '/cart',
-        docTitle: 'Your Cart'
-    }, (err, html) => {
-        if(!err){
-            response.send(html);
-        }else{
-            console.log(err);
-        }
+    Cart.getProducts((cart) => {
+        Product.getProducts((products) => {
+            cartProducts = [];
+            for(let product of products){
+                cartProduct = cart.find(prod => prod.id === product.id.toString());
+                if(cartProduct){
+                    cartProducts.push({productData: product, qty: cartProduct.qty});
+                }
+            }
+            response.render('shop/cart.ejs', {
+                path: '/cart',
+                docTitle: 'Your Cart',
+                products: cartProducts
+            }, (err, html) => {
+                if(!err){
+                    response.send(html);
+                }else{
+                    console.log(err);
+                }
+            });
+        });
+    });
+}
+
+exports.deleteCartItem = (request, response, next) => {
+    const productId = request.body.productId;
+    Product.findProductById(productId, (prod) => {
+        Cart.deleteProduct(productId, prod.price, () => {
+            response.redirect('/cart');
+        });
     });
 }
 
 exports.getCheckout = (request, response, next) => {
-    // render method using the callback
     response.render('shop/checkout.ejs', {
         path: '/checkout',
         docTitle: 'Checkout'
