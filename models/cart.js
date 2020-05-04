@@ -75,7 +75,7 @@ module.exports = class Cart{
         });
     }
 
-    static deleteProduct(productId, productPrice, callback){
+    static deleteProduct(productId, productPrice){
         fs.readFile(p, (err, fileContent) => {
             if(!err){
                 let updatedCartProducts, deletedProduct;
@@ -90,9 +90,7 @@ module.exports = class Cart{
                 cart.products = updatedCartProducts;
                 cart.totalPrice = cart.totalPrice - (productPrice * deletedProduct.qty);
                 fs.writeFile(p, JSON.stringify(cart), (err) => {
-                    if(!err){
-                        callback();
-                    }else{
+                    if(err){
                         console.log(err);
                     }
                 });

@@ -87,10 +87,9 @@ exports.getCart = (request, response, next) => {
 exports.deleteCartItem = (request, response, next) => {
     const productId = request.body.productId;
     Product.findProductById(productId, (prod) => {
-        Cart.deleteProduct(productId, prod.price, () => {
-            response.redirect('/cart');
-        });
+        Cart.deleteProduct(productId, prod.price);
     });
+    response.redirect('/cart');
 }
 
 exports.getCheckout = (request, response, next) => {
