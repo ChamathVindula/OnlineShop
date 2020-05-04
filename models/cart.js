@@ -12,7 +12,7 @@ module.exports = class Cart{
             if(!err){
                 cart = JSON.parse(fileContent);
             }else{
-                //console.log(err);
+                console.log(err);
             }
             // Analyze the data => Find the existing product
             const existingProductId = cart.products.findIndex((prod) => {

@@ -58,6 +58,12 @@ exports.postAddProduct = (request, response, next) => {
     response.redirect('/');
 }
 
+exports.deleteProduct = (request, response, next) => {
+    const prodId = request.params.productId;
+    Product.deleteProduct(prodId);
+    response.redirect('/admin/products');
+}
+
 exports.getProducts = (request, response, next) => {
     Product.getProducts((products) => {
         // render method without a callback
