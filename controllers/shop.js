@@ -3,7 +3,7 @@ const Product = require('../models/product.js');
 const Cart = require('../models/cart.js');
 
 exports.getProducts = (request, response, next) => {
-    Product.getProducts((products) => {
+    Product.findAll().then(products => {
         response.render('shop/product-list.ejs', {
             prods: products, 
             docTitle: 'Shop', 
@@ -15,15 +15,17 @@ exports.getProducts = (request, response, next) => {
                 console.log(err);
             }
         });
+    }).catch(err => {
+        console.log(err);
     });
 }
 
 exports.getProductDetails = (request, response, next) => {
     const prodId = request.params.productId;
-    Product.findProductById(prodId, (product) => {
+    Product.findOne({where:{id:prodId}}).then(product => {
         response.render('shop/product-detail.ejs', {
             prod: product, 
-            docTitle: 'Product Details',
+            docTitle: product.title,
             path: '/products'
         }, (err, html) => {
             if(!err){
@@ -32,22 +34,26 @@ exports.getProductDetails = (request, response, next) => {
                 console.log(err);
             }
         });
+    }).catch(err => {
+        console.log(err);
     });
-    
 }
 
 exports.getIndex = (request, response, next) => {
-    Product.getProducts((products) => {
-        response.render('shop/index.ejs', {
-            prods: products,
-            docTitle: 'Shop',
-            path: '/'});
+    Product.findAll().then(products => {
+        response.render('shop/product-list.ejs', {
+            prods: products, 
+            docTitle: 'Shop', 
+            path: '/'
         }, (err, html) => {
             if(!err){
                 response.send(html);
             }else{
                 console.log(err);
-        }
+            }
+        });
+    }).catch(err => {
+        console.log(err);
     });
 }
 

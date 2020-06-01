@@ -21,7 +21,7 @@ exports.getEditProductPage = (request, response, next) => {
     if(edittable === "true"){
         edit = true;
     }
-    Product.findProductById(prodId, (product) => {
+    Product.findByPk(prodId).then(product => {
         response.render('admin/add-or-edit-product.ejs', {
             docTitle: 'Edit Product',
             path: '/admin/edit-product',
@@ -34,6 +34,8 @@ exports.getEditProductPage = (request, response, next) => {
                 console.log(err);
             }
         });
+    }).catch(err => {
+        console.log(err);
     });
 }
 
@@ -43,8 +45,18 @@ exports.postEditProduct = (request, response, next) => {
     const imageUrl = request.body.imageUrl;
     const price = request.body.price;
     const description = request.body.description;
-    Product.editProduct(id, title, imageUrl, price, description, () => {
+    Product.findByPk(id).then(product => {
+        product.title = title;
+        product.price = price;
+        product.image = imageUrl;
+        product.description = description;
+        return product.save();                       // return is done here to avoid promise nesting
+    }).then(result => {                              // this 'then' is for the returned promise from the save method
+        // console.log(result);
+        console.log('Book Updated');
         response.redirect('/admin/products');
+    }).catch(err => {                                // this catch block catches errors for the first promise and the second promise
+        console.log(err);
     });
 }
 
@@ -53,21 +65,36 @@ exports.postAddProduct = (request, response, next) => {
     let imageUrl = request.body.imageUrl;
     let description = request.body.description;
     let price = request.body.price;
-    let product = new Product(title, imageUrl, description, price);
-    product.saveProduct();
-    response.redirect('/');
+    Product.create({
+        title: title,
+        price: price,
+        image: imageUrl,
+        description: description
+    }).then(product => {
+        // console.log(product);
+        console.log('Created new Product');
+        response.redirect('/admin/products');
+    }).catch(err => {
+        console.log(err);
+    });
 }
 
 exports.deleteProduct = (request, response, next) => {
     const prodId = request.params.productId;
-    Product.deleteProduct(prodId);
-    
-    response.redirect('/admin/products');
+    Product.destroy({
+        where: {
+            id: prodId
+        }
+    }).then(result => {
+        console.log('Product Deleted');
+        response.redirect('/admin/products');
+    }).catch(err => {
+        console.log(err);
+    });
 }
 
 exports.getProducts = (request, response, next) => {
-    Product.getProducts((products) => {
-        // render method without a callback
+    Product.findAll().then(products => {
         response.render('admin/products.ejs', {
             prods: products, 
             docTitle: 'Admin Product List', 
@@ -79,5 +106,7 @@ exports.getProducts = (request, response, next) => {
                 console.log(err);
             }
         });
+    }).catch(err => {
+        console.log(err);
     });
 }

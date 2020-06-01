@@ -10,6 +10,8 @@ const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/404.js');
 
+const sequelize = require('./utils/database');
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -26,4 +28,9 @@ app.use(shopRoutes);
 
 app.use(errorController.getpageNotFound);
 
-app.listen(3000);
+sequelize.sync({force: true}).then(result => {
+    // console.log(result);
+    app.listen(3000);
+}).catch(err => {
+    console.log(err);
+});
