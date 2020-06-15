@@ -45,9 +45,9 @@ exports.postEditProduct = (request, response, next) => {
     const imageUrl = request.body.imageUrl;
     const price = request.body.price;
     const description = request.body.description;
-    Product.findByPk(id).then(product => {
-        product.title = title;
-        product.price = price;
+    Product.findByPk(id).then(product => {          // findByPk returns an instance of Product with relavent fields populated
+        product.title = title;                      // if product is found, this contains an Object. You can simply alter the
+        product.price = price;                      // key-values/attributes and simply call save() on the instance to save the updates
         product.image = imageUrl;
         product.description = description;
         return product.save();                       // return is done here to avoid promise nesting
@@ -69,7 +69,8 @@ exports.postAddProduct = (request, response, next) => {
         title: title,
         price: price,
         image: imageUrl,
-        description: description
+        description: description,
+        userId: request.user.id
     }).then(product => {
         // console.log(product);
         console.log('Created new Product');
